@@ -1,3 +1,4 @@
+# Enriched Timeline Merger
 # REMEMBER TO RUN WITH PYTHON3
 
 # csv module to read and write csv files
