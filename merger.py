@@ -1,9 +1,11 @@
 # REMEMBER TO RUN WITH PYTHON3
 
-# importing built in python csv module
-import csv
+# csv module to read and write csv files
+# glob module finds all pathnames matching specified pattern
+# using os to find file size for mergin algo
+import csv, glob, os
 
-#Functions
+########## Functions ##############
 
 # function takes csv file read object and return rows in that file
 def createDataRows(csvreader):
@@ -37,20 +39,23 @@ def appendNewData(original, newData):
 def readAndModify(file1, file2):
     # initialize modified data
     modifiedData = []
-    headers1 = []
-    headers2 = []
+    headers = []
 
     # open file in read mode and assign it a variable for file object
     # third argument encoding system for Unicode (to not get hexidecimal values while parsing)
     with open(file1, 'r', encoding='utf-8') as reader1, open(file2, 'r', encoding='utf-8') as reader2:
-
         # create csv reader object from file object
         csvreader1 = csv.reader(reader1)
         csvreader2 = csv.reader(reader2)
 
-        # extracting field names through first rows
-        headers1 = next(csvreader1)
-        headers2 = next(csvreader2)
+        # checks if first master is being used (blank file)
+        newMaster = os.stat(file1).st_size == 0
+
+        # extract headers from master or merge file
+        if newMaster == True:
+            headers = next(csvreader2)
+        else:
+            headers = next(csvreader1)
 
         # extracting rest of data from each file
         rows1 = createDataRows(csvreader1)
@@ -69,16 +74,21 @@ def readAndModify(file1, file2):
                     appendNewData(x,y)
                     append = False
 
-        modifiedData = rows1
+        # if a new blank master is being used there is no data
+        # second set of rows will populate master (merger file)
+        if newMaster == True:
+            modifiedData = rows2
+        else:
+            modifiedData = rows1
 
         # close opened files after reading
         reader1.close()
         reader2.close()
 
-    return [headers1, modifiedData]
+    return [headers, modifiedData]
 
+# open master, write headers (results[0]), write data (results[1])
 def writeNewFile(results):
-    # create
     with open('master.csv', mode='w') as master:
         master_writer = csv.writer(master)
 
@@ -89,25 +99,23 @@ def writeNewFile(results):
 
     master.close()
 
-# main
+########## Main ##############
 if __name__ == "__main__":
-    print('Input files to be merged.\n')
-    print('First file must be the "Master" file.\n')
-    print('Master File: ')
+    # create new master file
+    with open('master.csv', mode='w') as master:
+        pass
+    master.close()
 
-    # csv file names
-    file1 = input()
-    print("\nName of file to be merged: ")
-    file2 = input()
+    # list of files with ext .csv in current working directory
+    files = glob.glob("*.csv")
 
-    print('Merging Files')
+    print('Merging the following Files:\n')
+    # iterate over the list of files and merge into master file
+    for file in files:
+        print(file)
+        result = readAndModify('master.csv', file)
+        writeNewFile(result)
 
-    results = readAndModify(file1, file2)
-
-    writeNewFile(results)
-
-    print('Merging Complete')
-
-
-
+    print('\nmaster.csv has been created/updated')
+    print('\nMerging complete')
 
