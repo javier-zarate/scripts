@@ -64,7 +64,9 @@ def readAndModify(file1, file2):
         # iterate over both data sets
         # if rows are both at index 1 (Title Header)
         # use appendNewData function to compare that row in both files
+        ogTitles = []
         for x in rows1:
+            ogTitles.append(x[1])
             append = False
             for y in rows2:
                 if x[1] == y[1]:
@@ -80,6 +82,16 @@ def readAndModify(file1, file2):
             modifiedData = rows2
         else:
             modifiedData = rows1
+
+        # no need to check for new rows on blank master
+        # all rows are copied on first pass
+        if newMaster == False:
+            # check merge file for new rows not in master (skip headers)
+            for y in rows2[1:]:
+                found = y[1] not in ogTitles
+                if found == True:
+                    print(found, y[1])
+                    modifiedData.append(y)
 
         # close opened files after reading
         reader1.close()
@@ -112,6 +124,9 @@ if __name__ == "__main__":
     print('Merging the following Files:\n')
     # iterate over the list of files and merge into master file
     for file in files:
+        if file == 'master.csv':
+            if os.stat(file).st_size == 0:
+                continue
         print(file)
         result = readAndModify('master.csv', file)
         writeNewFile(result)
