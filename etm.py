@@ -4,7 +4,7 @@
 # csv module to read and write csv files
 # glob module finds all pathnames matching specified pattern
 # using os to find file size for mergin algo
-import csv, glob, os
+import csv, glob, os, codecs
 
 ########## Functions ##############
 
@@ -44,7 +44,7 @@ def readAndModify(file1, file2):
 
     # open file in read mode and assign it a variable for file object
     # third argument encoding system for Unicode (to not get hexidecimal values while parsing)
-    with open(file1, 'r', encoding='utf-8') as reader1, open(file2, 'r', encoding='utf-8') as reader2:
+    with codecs.open(file1, mode='r', encoding='utf-8', errors='strict') as reader1, open(file2, mode='r', encoding='utf-8', errors='strict') as reader2:
         # create csv reader object from file object
         csvreader1 = csv.reader(reader1)
         csvreader2 = csv.reader(reader2)
@@ -101,7 +101,7 @@ def readAndModify(file1, file2):
 
 # open master, write headers (results[0]), write data (results[1])
 def writeNewFile(results):
-    with open('master.csv', mode='w') as master:
+    with codecs.open('master.csv', mode='w', encoding='utf-8', errors='strict') as master:
         master_writer = csv.writer(master)
 
         master_writer.writerow(results[0])
@@ -114,7 +114,7 @@ def writeNewFile(results):
 ########## Main ##############
 if __name__ == "__main__":
     # create new master file
-    with open('master.csv', mode='w') as master:
+    with codecs.open('master.csv', mode='w', encoding='utf-8', errors='strict') as master:
         pass
     master.close()
 
@@ -133,4 +133,3 @@ if __name__ == "__main__":
 
     print('\nmaster.csv has been created/updated')
     print('\nMerging complete')
-
